@@ -1,4 +1,5 @@
 import cookieParser from "cookie-parser";
+import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import { connectDB } from "./database/connectDb.js";
@@ -12,6 +13,16 @@ connectDB();
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
+app.use('/uploads', express.static('uploads'));
+//cors
+const corsOptions = {
+  origin: '',
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true, 
+};
+app.use(cors(corsOptions));
+
 
 const PORT = process.env.PORT || 8000;
 

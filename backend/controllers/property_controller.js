@@ -1,11 +1,16 @@
+import { upload } from "../middleware/upload.js";
 import { Property } from "../models/products.js";
 
+// Create Property (with image upload)
 export const createProperty = async (req, res) => {
   try {
-    const property = new Property({
-      ...req.body
+    const imageUrls = req.files.map(file => `uploads/${file.filename}`);  // Map uploaded files to their paths
 
+    const property = new Property({
+      ...req.body,
+      image: imageUrls,  // Array of image URLs
     });
+
     await property.save();
     res.status(201).json(property);
   } catch (error) {
@@ -14,6 +19,7 @@ export const createProperty = async (req, res) => {
   }
 };
 
+// Update Property (with image upload)
 export const updateProperty = async (req, res) => {
   try {
     const property = await Property.findById(req.params.id);
@@ -21,7 +27,12 @@ export const updateProperty = async (req, res) => {
       return res.status(404).json({ message: 'Property not found' });
     }
 
-    const updatedProperty = await Property.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const updatedData = req.body;
+    if (req.files && req.files.length > 0) {
+      updatedData.image = req.files.map(file => `uploads/${file.filename}`);
+    }
+
+    const updatedProperty = await Property.findByIdAndUpdate(req.params.id, updatedData, { new: true });
     res.status(200).json(updatedProperty);
   } catch (error) {
     console.error(error);
